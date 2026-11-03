@@ -8,6 +8,7 @@ import {
   type Activity,
   activitiesNewestFirst,
   activityToFeature,
+  type LngLatBounds,
   type RideFeatureCollection,
   type RideMapData,
   simplifyTrack,
@@ -21,6 +22,13 @@ import {
 import { speedLineColor } from '@/shared/config/speed-color'
 import { accentColor, appearanceFromDocument } from '@/shared/config/theme'
 import { useThemeAppearance } from '@/shared/lib/use-theme-appearance'
+import { earthIntroFocus } from '../config/earth-intro'
+import {
+  introFocusEasing,
+  introFocusPadding,
+  introFocusView,
+  newestRideBounds,
+} from '../model/earth-intro'
 import { MapToolbar } from './map-toolbar'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import './mapbox.css'
@@ -75,6 +83,7 @@ export function RideMap({
   styleIdRef.current = styleId
   const activitiesRef = useRef(activities)
   activitiesRef.current = activities
+  const cancelEarthIntroRef = useRef<() => void>(() => {})
   useEffect(() => {
     const container = containerRef.current
     if (!container || !token) return
@@ -117,7 +126,25 @@ export function RideMap({
       hoverRide(map, hoveredRideId, false)
       hoveredRideId = null
     })
+    let introActive = false
+    let introTimer: number | null = null
+    let stopFocus = () => {}
+    const cancelEarthIntro = () => {
+      if (!introActive) return
+      introActive = false
+      if (introTimer !== null) {
+        window.clearTimeout(introTimer)
+        introTimer = null
+      }
+      stopFocus()
+      stopFocus = () => {}
+    }
+    cancelEarthIntroRef.current = cancelEarthIntro
+    map.on('movestart', (event) => {
+      if (event.originalEvent) cancelEarthIntro()
+    })
     map.on('click', 'rides-hit', (event) => {
+      cancelEarthIntro()
       const id = Number(event.features?.[0]?.properties?.id)
       const activity = activitiesRef.current.find((item) => item.run_id === id)
       if (activity) {
@@ -136,7 +163,26 @@ export function RideMap({
     })
     let framed = false
     const frameOnce = (bounds: RideMapData['bounds']) => {
-      if (!framed) framed = frameWholeEarth(map, bounds)
+      if (framed) return
+      if (!frameWholeEarth(map, bounds)) return
+      framed = true
+      const newest = newestRideBounds(activitiesRef.current)
+      if (!newest) return
+      const reduced = window.matchMedia(
+        '(prefers-reduced-motion: reduce)',
+      ).matches
+      const duration = reduced ? 0 : earthIntroFocus.durationMs
+      const hold = reduced ? 0 : earthIntroFocus.holdMs
+      introActive = true
+      const start = () => {
+        introTimer = null
+        if (!introActive || mapRef.current !== map) return
+        stopFocus = focusNewestRide(map, newest, duration, () => {
+          introActive = false
+        })
+      }
+      if (hold <= 0) start()
+      else introTimer = window.setTimeout(start, hold)
     }
     map.on('style.load', () => {
       const theme = appearanceFromDocument()
@@ -153,6 +199,10 @@ export function RideMap({
     map.once('load', () => setMapReady(true))
 
     return () => {
+      introActive = false
+      if (introTimer !== null) window.clearTimeout(introTimer)
+      stopFocus()
+      cancelEarthIntroRef.current = () => {}
       if (transitionTimer.current !== null) {
         window.clearTimeout(transitionTimer.current)
       }
@@ -188,6 +238,7 @@ export function RideMap({
     (delta: number) => {
       const map = mapRef.current
       if (!map) return
+      cancelEarthIntroRef.current()
       stopSpin()
       map.easeTo({ zoom: map.getZoom() + delta, duration: 200 })
     },
@@ -197,6 +248,7 @@ export function RideMap({
   const resetNorth = useCallback(() => {
     const map = mapRef.current
     if (!map) return
+    cancelEarthIntroRef.current()
     stopSpin()
     map.easeTo({ bearing: 0, pitch: 0, duration: 350 })
   }, [stopSpin])
@@ -219,6 +271,7 @@ export function RideMap({
   const toggleProjection = useCallback(() => {
     const map = mapRef.current
     if (!map || !mapReady || isTransitioning) return
+    cancelEarthIntroRef.current()
     setIsTransitioning(true)
     if (transitionTimer.current !== null) {
       window.clearTimeout(transitionTimer.current)
@@ -302,7 +355,10 @@ export function RideMap({
           isRotating={isRotating}
           isTransitioning={isTransitioning}
           onToggleProjection={toggleProjection}
-          onToggleRotate={() => setIsRotating((current) => !current)}
+          onToggleRotate={() => {
+            cancelEarthIntroRef.current()
+            setIsRotating((current) => !current)
+          }}
         />
       </div>
     </div>
@@ -318,6 +374,71 @@ function paintSpace(map: mapboxgl.Map, theme: MapAppearance) {
     'space-color': space,
     'star-intensity': 0,
   })
+}
+
+function focusNewestRide(
+  map: mapboxgl.Map,
+  bounds: LngLatBounds,
+  duration: number,
+  onDone: () => void,
+) {
+  const canvas = map.getCanvas()
+  const camera = map.cameraForBounds(bounds, {
+    padding: introFocusPadding({
+      width: canvas.clientWidth,
+      height: canvas.clientHeight,
+    }),
+    maxZoom: earthIntroFocus.maxZoom,
+    bearing: 0,
+    pitch: 0,
+  })
+  if (!camera || camera.zoom == null || camera.center == null) {
+    onDone()
+    return () => {}
+  }
+  const target = mapboxgl.LngLat.convert(camera.center)
+  const start = map.getCenter()
+  const startZoom = map.getZoom()
+  if (duration <= 0) {
+    map.jumpTo({
+      center: target,
+      zoom: camera.zoom,
+      bearing: 0,
+      pitch: 0,
+    })
+    onDone()
+    return () => {}
+  }
+  const started = performance.now()
+  let frame = 0
+  let stopped = false
+  const tick = (now: number) => {
+    if (stopped) return
+    const progress = Math.min(1, (now - started) / duration)
+    const view = introFocusView(
+      { lng: start.lng, lat: start.lat },
+      { lng: target.lng, lat: target.lat },
+      startZoom,
+      camera.zoom ?? startZoom,
+      introFocusEasing(progress),
+    )
+    map.jumpTo({
+      center: [view.lng, view.lat],
+      zoom: view.zoom,
+      bearing: 0,
+      pitch: 0,
+    })
+    if (progress < 1) {
+      frame = window.requestAnimationFrame(tick)
+      return
+    }
+    onDone()
+  }
+  frame = window.requestAnimationFrame(tick)
+  return () => {
+    stopped = true
+    window.cancelAnimationFrame(frame)
+  }
 }
 
 function frameWholeEarth(map: mapboxgl.Map, bounds: RideMapData['bounds']) {
