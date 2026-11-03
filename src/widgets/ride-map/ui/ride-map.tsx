@@ -29,6 +29,7 @@ import {
   introFocusView,
   newestRideBounds,
 } from '../model/earth-intro'
+import { spinLongitudeDelta } from '../model/globe-spin'
 import { MapToolbar } from './map-toolbar'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import './mapbox.css'
@@ -75,6 +76,11 @@ export function RideMap({
   const [mapReady, setMapReady] = useState(false)
   const [isGlobe, setIsGlobe] = useState(true)
   const [isRotating, setIsRotating] = useState(false)
+  const isRotatingRef = useRef(false)
+  const setSpinning = useCallback((spinning: boolean) => {
+    isRotatingRef.current = spinning
+    setIsRotating(spinning)
+  }, [])
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [bearing, setBearing] = useState(0)
   const colorBySpeedRef = useRef(colorBySpeed)
@@ -108,7 +114,6 @@ export function RideMap({
     })
     languageControlRef.current = languageControl
     map.addControl(languageControl)
-    map.on('dragstart', () => setIsRotating(false))
     map.on('rotate', () => setBearing(map.getBearing()))
     let hoveredRideId: string | number | null = null
     map.on('mouseenter', 'rides-hit', () => {
@@ -140,15 +145,25 @@ export function RideMap({
       stopFocus = () => {}
     }
     cancelEarthIntroRef.current = cancelEarthIntro
+    const yieldCamera = () => {
+      cancelEarthIntro()
+      if (isRotatingRef.current) setSpinning(false)
+    }
+    const canvas = map.getCanvasContainer()
+    canvas.addEventListener('pointerdown', yieldCamera, true)
+    canvas.addEventListener('wheel', yieldCamera, {
+      capture: true,
+      passive: true,
+    })
     map.on('movestart', (event) => {
-      if (event.originalEvent) cancelEarthIntro()
+      if (event.originalEvent) yieldCamera()
     })
     map.on('click', 'rides-hit', (event) => {
       cancelEarthIntro()
       const id = Number(event.features?.[0]?.properties?.id)
       const activity = activitiesRef.current.find((item) => item.run_id === id)
       if (activity) {
-        setIsRotating(false)
+        setSpinning(false)
         // Umami injects window.umami in production.
         ;(
           window as unknown as {
@@ -199,6 +214,8 @@ export function RideMap({
     map.once('load', () => setMapReady(true))
 
     return () => {
+      canvas.removeEventListener('pointerdown', yieldCamera, true)
+      canvas.removeEventListener('wheel', yieldCamera, true)
       introActive = false
       if (introTimer !== null) window.clearTimeout(introTimer)
       stopFocus()
@@ -211,16 +228,16 @@ export function RideMap({
       map.remove()
       mapRef.current = null
     }
-  }, [locale, onSelect, token])
+  }, [locale, onSelect, setSpinning, token])
 
   useEffect(() => {
     const map = mapRef.current
     if (!map || !mapReady) return
 
     const spin = () => {
-      if (map.getZoom() >= 5) return
+      if (!isRotatingRef.current) return
       const center = map.getCenter()
-      center.lng -= 6
+      center.lng -= spinLongitudeDelta(map.getZoom())
       map.easeTo({ center, duration: 1000, easing: (progress) => progress })
     }
 
@@ -232,7 +249,7 @@ export function RideMap({
     }
   }, [isRotating, mapReady])
 
-  const stopSpin = useCallback(() => setIsRotating(false), [])
+  const stopSpin = useCallback(() => setSpinning(false), [setSpinning])
 
   const zoomBy = useCallback(
     (delta: number) => {
@@ -357,7 +374,7 @@ export function RideMap({
           onToggleProjection={toggleProjection}
           onToggleRotate={() => {
             cancelEarthIntroRef.current()
-            setIsRotating((current) => !current)
+            setSpinning(!isRotatingRef.current)
           }}
         />
       </div>
