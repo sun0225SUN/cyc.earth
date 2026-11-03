@@ -12,14 +12,14 @@ import {
   type RideLap,
   type RideStreams,
 } from '@/entities/activity'
-import { type RideMapStyleId, rideMapStyle } from '@/shared/config/mapbox'
-import { privacyMode } from '@/shared/config/privacy'
+import { type RideMapStyleId, rideMapStyle } from '@/shared/lib/mapbox'
+import { privacyMode } from '@/shared/lib/privacy'
 import {
   accentColor,
   appearanceFromDocument,
   themeAccentOn,
-} from '@/shared/config/theme'
-import { useThemeAppearance } from '@/shared/lib/use-theme-appearance'
+} from '@/shared/lib/theme'
+import { useThemeAppearance } from '@/shared/lib/theme/use-theme-appearance'
 import {
   coordinatesBounds,
   type LapPath,

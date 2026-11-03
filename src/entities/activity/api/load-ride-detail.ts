@@ -2,7 +2,7 @@
 
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
-import { privacyHideMeters, privacyMode } from '@/shared/config/privacy'
+import { privacyHideMeters, privacyMode } from '@/shared/lib/privacy'
 import { redactHiddenLapMarkers } from '../model/present-route'
 import type { RideDetailData } from '../model/ride-detail'
 

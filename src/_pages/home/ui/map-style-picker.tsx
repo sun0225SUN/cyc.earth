@@ -7,7 +7,7 @@ import {
   type RideMapStyleId,
   rideMapStyleIds,
   rideMapStylePreview,
-} from '@/shared/config/mapbox'
+} from '@/shared/lib/mapbox'
 
 const STYLE_LABEL = {
   privacy: 'stylePrivacy',

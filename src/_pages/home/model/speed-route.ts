@@ -5,7 +5,7 @@ import {
   SPEED_MIN_KMH,
   SPEED_STOPS,
   type SpeedStop,
-} from '@/shared/config/speed-color'
+} from '@/shared/lib/speed-color'
 import { routeDistances } from './lap-route'
 
 export { SPEED_GRADIENT, SPEED_MAX_KMH, SPEED_MIN_KMH, SPEED_STOPS }

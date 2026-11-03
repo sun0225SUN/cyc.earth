@@ -130,13 +130,16 @@ app/                 Next.js routes
 messages/            next-intl catalogs
 data/activities.json Exported rides
 backend/             iGPSPORT download, FIT parse, JSON export
+src/config.yml       site, privacy, theme, speed colors, Mapbox styles
 src/_app/            providers, styles, i18n
 src/_pages/          one slice per route
 src/widgets/         large reusable blocks
 src/features/        reusable user actions
 src/entities/        business entities
-src/shared/          UI kit and config
+src/shared/          UI kit and libraries
 ```
+
+Application settings live in [`src/config.yml`](src/config.yml). Code that reads them lives under `src/shared/lib/`. Tokens stay in environment variables.
 
 Agent notes live in [`AGENTS.md`](AGENTS.md) and [`docs/agent/`](docs/agent/).
 

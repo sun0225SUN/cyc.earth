@@ -1,6 +1,6 @@
 import { decode, encode } from '@mapbox/polyline'
 import { expect, test } from 'vitest'
-import { privacyHideMeters, privacyMode } from '@/shared/config/privacy'
+import { privacyHideMeters, privacyMode } from '@/shared/lib/privacy'
 import {
   presentLaps,
   presentPolyline,

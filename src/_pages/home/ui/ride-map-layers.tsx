@@ -3,8 +3,8 @@
 import { cn } from 'cn'
 import { useTranslations } from 'next-intl'
 import { useEffect, useRef, useState } from 'react'
-import type { RideMapStyleId } from '@/shared/config/mapbox'
-import { privacyMode } from '@/shared/config/privacy'
+import type { RideMapStyleId } from '@/shared/lib/mapbox'
+import { privacyMode } from '@/shared/lib/privacy'
 import { MapStylePicker } from './map-style-picker'
 
 const DEFAULT_HEIGHT = 448

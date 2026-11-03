@@ -1,5 +1,7 @@
-export const githubRepositoryUrl = 'https://github.com/sun0225SUN/cyc.earth'
-export const productionSiteUrl = 'https://cyc.earth'
+import { appConfig } from '@/shared/lib/config'
+
+export const githubRepositoryUrl = appConfig.site.githubRepositoryUrl
+export const productionSiteUrl = appConfig.site.productionSiteUrl
 
 export function siteUrl() {
   const fromEnv = process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/$/, '')
@@ -13,5 +15,5 @@ export function siteUrl() {
       ? vercel.replace(/\/$/, '')
       : `https://${vercel}`
   }
-  return 'http://localhost:3000'
+  return appConfig.site.localSiteUrl
 }

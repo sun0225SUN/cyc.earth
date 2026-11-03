@@ -11,8 +11,8 @@ import {
 import { useTranslations } from 'next-intl'
 import { LanguageToggle } from '@/features/language'
 import { ThemeToggle } from '@/features/theme'
-import { githubRepositoryUrl } from '@/shared/config/site'
 import { cn } from '@/shared/lib/cn'
+import { githubRepositoryUrl } from '@/shared/lib/site'
 import { GithubIcon } from '@/shared/ui/github-icon'
 
 const pill =

@@ -32,7 +32,8 @@
     "**/*.tsx",
     "**/*.mts",
     ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts"
+    ".next/dev/types/**/*.ts",
+    "src/shared/lib/config/yml.d.ts"
   ],
   "exclude": ["node_modules", "backend"]
 }

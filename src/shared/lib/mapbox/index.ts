@@ -1,30 +1,11 @@
-export const mapboxStyles = {
-  light: 'mapbox://styles/mapbox/light-v11',
-  dark: 'mapbox://styles/mapbox/dark-v11',
-} as const
+import { appConfig } from '@/shared/lib/config'
 
-export type MapAppearance = keyof typeof mapboxStyles
-
-export const rideMapStyleIds = [
-  'privacy',
-  'streets',
-  'light',
-  'dark',
-  'satellite',
-  'navigationDay',
-  'navigationNight',
-] as const
+export const rideMapStyleIds = appConfig.mapbox.rideStyleOrder
 
 export type RideMapStyleId = (typeof rideMapStyleIds)[number]
+export type MapAppearance = keyof typeof appConfig.mapbox.appearanceStyles
 
-const rideMapStyleUrls: Record<Exclude<RideMapStyleId, 'privacy'>, string> = {
-  streets: 'mapbox://styles/mapbox/streets-v12',
-  light: 'mapbox://styles/mapbox/light-v11',
-  dark: 'mapbox://styles/mapbox/dark-v11',
-  satellite: 'mapbox://styles/mapbox/satellite-v9',
-  navigationDay: 'mapbox://styles/mapbox/navigation-day-v1',
-  navigationNight: 'mapbox://styles/mapbox/navigation-night-v1',
-}
+const rideStyles = appConfig.mapbox.rideStyles
 
 export function rideMapStyle(
   id: RideMapStyleId,
@@ -35,12 +16,12 @@ export function rideMapStyle(
   },
 ) {
   if (id === 'privacy') {
+    const style = appConfig.mapbox.privacy
     const route = overlay?.route ?? []
-    const color =
-      overlay?.color ?? (appearance === 'dark' ? '#ceff00' : '#2563eb')
+    const color = overlay?.color ?? appConfig.theme.accent[appearance]
     return {
       version: 8 as const,
-      glyphs: 'mapbox://fonts/mapbox/{fontstack}/{range}.pbf',
+      glyphs: style.glyphs,
       sources: {
         'detail-ride': {
           type: 'geojson' as const,
@@ -56,7 +37,7 @@ export function rideMapStyle(
           id: 'background',
           type: 'background' as const,
           paint: {
-            'background-color': appearance === 'dark' ? '#0a0a0a' : '#f4f4f5',
+            'background-color': style.background[appearance],
           },
         },
         {
@@ -66,14 +47,14 @@ export function rideMapStyle(
           layout: { 'line-join': 'round', 'line-cap': 'round' },
           paint: {
             'line-color': color,
-            'line-width': 4,
-            'line-opacity': 0.95,
+            'line-width': style.lineWidth,
+            'line-opacity': style.lineOpacity,
           },
         },
       ],
     }
   }
-  return rideMapStyleUrls[id]
+  return rideStyles[id]
 }
 
 export function rideMapStylePreview(
@@ -82,9 +63,11 @@ export function rideMapStylePreview(
   center: [number, number],
 ) {
   if (id === 'privacy' || !token) return null
-  const path = rideMapStyleUrls[id].replace('mapbox://styles/', '')
+  const path = rideStyles[id].replace('mapbox://styles/', '')
   const [longitude, latitude] = center
-  return `https://api.mapbox.com/styles/v1/${path}/static/${longitude.toFixed(4)},${latitude.toFixed(4)},12,0/80x80@2x?access_token=${token}&logo=false&attribution=false`
+  const { zoom, bearing, width, height, retina } = appConfig.mapbox.preview
+  const scale = retina ? '@2x' : ''
+  return `https://api.mapbox.com/styles/v1/${path}/static/${longitude.toFixed(4)},${latitude.toFixed(4)},${zoom},${bearing}/${width}x${height}${scale}?access_token=${token}&logo=false&attribution=false`
 }
 
 export function preloadRideMapStylePreviews(
@@ -106,5 +89,6 @@ export function mapboxToken() {
 }
 
 export function mapLanguage(locale: string) {
-  return locale === 'zh' ? 'zh-Hans' : 'en'
+  if (locale === 'zh') return appConfig.mapbox.language.zh
+  return appConfig.mapbox.language.default
 }

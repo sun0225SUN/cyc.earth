@@ -1,13 +1,7 @@
-/** Light = blue. Dark = green */
-export const themeAccent = {
-  light: '#2563eb',
-  dark: '#ceff00',
-} as const
+import { appConfig } from '@/shared/lib/config'
 
-export const themeAccentOn = {
-  light: '#ffffff',
-  dark: '#111111',
-} as const
+export const themeAccent = appConfig.theme.accent
+export const themeAccentOn = appConfig.theme.accentOn
 
 export type ThemeAppearance = keyof typeof themeAccent
 

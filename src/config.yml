@@ -1,0 +1,72 @@
+# Application settings. Values only — no tokens.
+# theme.accent and theme.accentOn match --ride and --ride-on
+# in src/_app/styles/globals.css. Change both together.
+
+site:
+  githubRepositoryUrl: https://github.com/sun0225SUN/cyc.earth
+  productionSiteUrl: https://cyc.earth
+  localSiteUrl: http://localhost:3000
+
+privacy:
+  # Hide the start and end of every ride so home and the finish stay off the map.
+  # The cut is applied before ride data reaches the browser.
+  # The ride detail sheet then omits the start/end marker switch.
+  # Set mode to false to draw the full track and show that switch.
+  mode: true
+  # Meters cut from the start and from the end while mode is on.
+  hideMeters: 500
+
+theme:
+  # Light = blue. Dark = green.
+  accent:
+    light: "#2563eb"
+    dark: "#ceff00"
+  accentOn:
+    light: "#ffffff"
+    dark: "#111111"
+
+speed:
+  minKmh: 0
+  maxKmh: 40
+  stops:
+    - [0, "#14d45a"]
+    - [10, "#86e04a"]
+    - [20, "#f0dc1e"]
+    - [30, "#f08a22"]
+    - [40, "#e02424"]
+
+mapbox:
+  appearanceStyles:
+    light: mapbox://styles/mapbox/light-v11
+    dark: mapbox://styles/mapbox/dark-v11
+  rideStyleOrder:
+    - privacy
+    - streets
+    - light
+    - dark
+    - satellite
+    - navigationDay
+    - navigationNight
+  rideStyles:
+    streets: mapbox://styles/mapbox/streets-v12
+    light: mapbox://styles/mapbox/light-v11
+    dark: mapbox://styles/mapbox/dark-v11
+    satellite: mapbox://styles/mapbox/satellite-v9
+    navigationDay: mapbox://styles/mapbox/navigation-day-v1
+    navigationNight: mapbox://styles/mapbox/navigation-night-v1
+  privacy:
+    glyphs: mapbox://fonts/mapbox/{fontstack}/{range}.pbf
+    background:
+      light: "#f4f4f5"
+      dark: "#0a0a0a"
+    lineWidth: 4
+    lineOpacity: 0.95
+  language:
+    zh: zh-Hans
+    default: en
+  preview:
+    zoom: 12
+    bearing: 0
+    width: 80
+    height: 80
+    retina: true

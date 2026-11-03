@@ -16,9 +16,9 @@ import {
   preloadRideMapStylePreviews,
   type RideMapStyleId,
   rideMapStyleIds,
-} from '@/shared/config/mapbox'
-import { appearanceFromDocument } from '@/shared/config/theme'
-import { useThemeAppearance } from '@/shared/lib/use-theme-appearance'
+} from '@/shared/lib/mapbox'
+import { appearanceFromDocument } from '@/shared/lib/theme'
+import { useThemeAppearance } from '@/shared/lib/theme/use-theme-appearance'
 import {
   MapCameraBar,
   RideMap,

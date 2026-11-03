@@ -1,10 +1,7 @@
 'use client'
 
 import { useSyncExternalStore } from 'react'
-import {
-  appearanceFromDocument,
-  type ThemeAppearance,
-} from '@/shared/config/theme'
+import { appearanceFromDocument, type ThemeAppearance } from './index'
 
 function subscribe(onChange: () => void) {
   const observer = new MutationObserver(onChange)

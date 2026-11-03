@@ -1,5 +1,5 @@
 import { decode, encode } from '@mapbox/polyline'
-import { privacyHideMeters, privacyMode } from '@/shared/config/privacy'
+import { privacyHideMeters, privacyMode } from '@/shared/lib/privacy'
 import type { RideLap } from './ride-detail'
 
 export type TrackAxes = 'lnglat' | 'latlng'

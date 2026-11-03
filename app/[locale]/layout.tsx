@@ -5,9 +5,9 @@ import { getLocale, getTranslations } from 'next-intl/server'
 import { UmamiAnalytics } from '@/_app/analytics/umami'
 import { CommandMenu } from '@/features/command-menu'
 import { ThemeProvider } from '@/features/theme'
-import { siteUrl } from '@/shared/config/site'
 import { routing } from '@/shared/i18n'
 import { cn } from '@/shared/lib/cn'
+import { siteUrl } from '@/shared/lib/site'
 import '@/_app/styles/globals.css'
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-sans' })

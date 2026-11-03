@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl'
 import { useEffect } from 'react'
-import type { RideMapStyleId } from '@/shared/config/mapbox'
+import type { RideMapStyleId } from '@/shared/lib/mapbox'
 import { MapStylePicker } from './map-style-picker'
 import { LayerSwitch } from './ride-map-layers'
 

@@ -18,10 +18,10 @@ import {
   mapLanguage,
   type RideMapStyleId,
   rideMapStyle,
-} from '@/shared/config/mapbox'
-import { speedLineColor } from '@/shared/config/speed-color'
-import { accentColor, appearanceFromDocument } from '@/shared/config/theme'
-import { useThemeAppearance } from '@/shared/lib/use-theme-appearance'
+} from '@/shared/lib/mapbox'
+import { speedLineColor } from '@/shared/lib/speed-color'
+import { accentColor, appearanceFromDocument } from '@/shared/lib/theme'
+import { useThemeAppearance } from '@/shared/lib/theme/use-theme-appearance'
 import { earthIntroFocus } from '../config/earth-intro'
 import {
   introFocusEasing,

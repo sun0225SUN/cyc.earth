@@ -1,7 +1,7 @@
 import { access, readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { cacheLife } from 'next/cache'
-import { privacyMode } from '@/shared/config/privacy'
+import { privacyMode } from '@/shared/lib/privacy'
 import type { Activity } from '../model/activity'
 import { presentPolyline } from '../model/present-route'
 

@@ -1,5 +1,5 @@
 import { afterEach, expect, test } from 'vitest'
-import { githubRepositoryUrl, productionSiteUrl, siteUrl } from './site'
+import { githubRepositoryUrl, productionSiteUrl, siteUrl } from './index'
 
 const keys = [
   'NEXT_PUBLIC_SITE_URL',

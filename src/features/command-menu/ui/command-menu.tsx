@@ -5,9 +5,9 @@ import { useLocale, useTranslations } from 'next-intl'
 import { useTheme } from 'next-themes'
 import { startTransition, useEffect, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
-import { githubRepositoryUrl } from '@/shared/config/site'
 import { usePathname, useRouter } from '@/shared/i18n/navigation'
 import { hrefWithCurrentQuery } from '@/shared/lib/current-query'
+import { githubRepositoryUrl } from '@/shared/lib/site'
 import './command-menu.css'
 
 const targets = {

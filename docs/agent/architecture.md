@@ -13,7 +13,7 @@ Layers, from highest to lowest. Add one only when it has code to hold. Do not ad
 | Widgets        | `src/widgets/<slice>`  | A large block reused by more than one page, or a block large enough that the page only composes it.                                                                                               |
 | Features       | `src/features/<slice>` | A user action that brings product value and is reused. A one-off interaction stays in its page.                                                                                                   |
 | Entities       | `src/entities/<slice>` | A business noun: its model, request functions, and reusable appearance.                                                                                                                           |
-| Shared         | `src/shared`           | Code with no product behavior: UI kit, clients, focused libraries, config. Segments only, no slices.                                                                                              |
+| Shared         | `src/shared`           | Code with no product behavior: UI kit, clients, and focused libraries. Segments only, no slices. Application settings are not a shared segment; they live in `src/config.yml`.                    |
 
 `messages/` stays at the repo root. `getRequestConfig` loads those catalogs. Do not add a second catalog path.
 
@@ -36,6 +36,29 @@ Use `ui`, `model`, `api`, `lib`, and `config`. Name any other segment by its pur
 `src/shared/i18n/index.ts` exports `routing` only. Import navigation helpers from `@/shared/i18n/navigation`. `src/shared/i18n/request.ts` is loaded by `next.config.ts`. Do not re-export `navigation` or `request` from the i18n index; the proxy bundle will otherwise include `next/root-params`.
 
 Put a Zustand store in the `model` segment of the slice that owns the interaction. Put shadcn primitives in `shared/ui/<name>`. Put `cn` and other project-agnostic helpers in `shared/lib/<topic>`, one topic per folder.
+
+A slice `config` segment is for code that belongs to that slice. Do not put shared application settings there.
+
+## App config
+
+Application settings live in [`src/config.yml`](../../src/config.yml). The file holds values only: site URLs, the privacy cut, theme colors, the speed color scale, and Mapbox style URLs. Do not put tokens or other secrets in it. Environment-specific hosts still come from `NEXT_PUBLIC_SITE_URL`, `VERCEL_ENV`, `VERCEL_PROJECT_PRODUCTION_URL`, `VERCEL_URL`, and `NEXT_PUBLIC_MAPBOX_TOKEN`.
+
+Do not add `src/shared/config`. Do not copy those values back into TypeScript constants.
+
+`src/shared/lib/config` loads the file and checks its shape. Next.js compiles `src/config.yml` with `src/shared/lib/config/yml-loader.cjs`. Vitest uses the YAML plugin in `vitest.config.mts`. Do not read the file with `fs` from client code. Features, entities, widgets, pages, and `app/` do not import `@/config.yml` or `@/shared/lib/config`. Read a topic from its lib folder:
+
+| Topic                              | Module                                    |
+| ---------------------------------- | ----------------------------------------- |
+| Site URLs and `siteUrl`            | `@/shared/lib/site`                       |
+| Privacy cut                        | `@/shared/lib/privacy`                    |
+| Theme colors and appearance        | `@/shared/lib/theme`                      |
+| Theme hook                         | `@/shared/lib/theme/use-theme-appearance` |
+| Speed color scale                  | `@/shared/lib/speed-color`                |
+| Mapbox styles, token, and language | `@/shared/lib/mapbox`                     |
+
+Functions that apply a setting live in that topic's folder. The theme hook stays out of `@/shared/lib/theme` so the index stays free of client code. A new setting goes in `src/config.yml` first, then through `parseAppConfig`, then out of the topic module.
+
+`theme.accent` and `theme.accentOn` match `--ride` and `--ride-on` in `src/_app/styles/globals.css`. Change them together.
 
 The old `src/components`, `src/hooks`, `src/stores`, `src/i18n`, `src/lib`, `src/styles`, and `src/types` paths are retired. Do not add files there.
 

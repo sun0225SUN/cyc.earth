@@ -130,13 +130,16 @@ app/                 Next.js 路由
 messages/            next-intl 文案
 data/activities.json 导出的骑行数据
 backend/             iGPSPORT 下载、FIT 解析、JSON 导出
+src/config.yml       站点、隐私、主题、速度色带、Mapbox 样式
 src/_app/            provider、样式、i18n
 src/_pages/          一个路由一个切片
 src/widgets/         跨页面复用的大块界面
 src/features/        复用的用户动作
 src/entities/        业务实体
-src/shared/          UI 和配置
+src/shared/          UI 和库
 ```
+
+应用配置在 [`src/config.yml`](src/config.yml)。读取这些值的代码在 `src/shared/lib/`。Token 仍放在环境变量里。
 
 Agent 说明在 [`AGENTS.md`](AGENTS.md) 和 [`docs/agent/`](docs/agent/)。
 

@@ -1,13 +1,8 @@
-export const SPEED_MIN_KMH = 0
-export const SPEED_MAX_KMH = 40
+import { appConfig } from '@/shared/lib/config'
 
-export const SPEED_STOPS = [
-  [0, '#14d45a'],
-  [10, '#86e04a'],
-  [20, '#f0dc1e'],
-  [30, '#f08a22'],
-  [40, '#e02424'],
-] as const
+export const SPEED_MIN_KMH = appConfig.speed.minKmh
+export const SPEED_MAX_KMH = appConfig.speed.maxKmh
+export const SPEED_STOPS = appConfig.speed.stops
 
 export type SpeedStop = (typeof SPEED_STOPS)[number]
 

@@ -14,6 +14,10 @@ const nextConfig: NextConfig = {
         loaders: ['@tailwindcss/turbopack'],
         as: '*.css',
       },
+      '*.yml': {
+        loaders: ['./src/shared/lib/config/yml-loader.cjs'],
+        as: '*.js',
+      },
     },
   },
 }
